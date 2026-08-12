@@ -97,3 +97,113 @@ body {
   width: 24px;
   height: 24px;
 }
+
+/* Navigazione a tab */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1.5rem;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.tabs button {
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #555;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs button.active {
+  color: #2d6cdf;
+  border-bottom-color: #2d6cdf;
+  font-weight: 600;
+}
+
+/* Pagine admin (reparti/dipendenti) */
+.admin-page {
+  padding: 1.5rem;
+  max-width: 900px;
+}
+
+.admin-page h2 { margin-top: 0; }
+
+.hint {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.inline-form, .employee-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.inline-form input[type="text"],
+.employee-form input,
+.employee-form select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.inline-form button, .employee-form button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #2d6cdf;
+  color: white;
+  cursor: pointer;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table th, .admin-table td {
+  border-bottom: 1px solid #eee;
+  padding: 0.6rem;
+  text-align: left;
+}
+
+.admin-table input[type="text"],
+.admin-table select {
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 0.3rem;
+  width: 100%;
+}
+
+.admin-table input[type="text"]:hover,
+.admin-table select:hover {
+  border-color: #ddd;
+  border-radius: 4px;
+}
+
+.admin-table .danger {
+  background: #fdecec;
+  color: #c0392b;
+  border: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.inactive-row { opacity: 0.5; }
+
+.empty-state {
+  color: #888;
+  font-style: italic;
+}
