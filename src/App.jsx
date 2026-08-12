@@ -6,6 +6,7 @@ import Departments from './pages/Departments'
 import Employees from './pages/Employees'
 import TimeOff from './pages/TimeOff'
 import Tips from './pages/Tips'
+import Closures from './pages/Closures'
 import './App.css'
 
 function AppContent() {
@@ -43,6 +44,9 @@ function AppContent() {
             <button className={tab === 'tips' ? 'active' : ''} onClick={() => setTab('tips')}>
               Mance
             </button>
+            <button className={tab === 'closures' ? 'active' : ''} onClick={() => setTab('closures')}>
+              Chiusure
+            </button>
           </>
         )}
       </nav>
@@ -52,6 +56,7 @@ function AppContent() {
       {tab === 'departments' && isAdmin && <Departments />}
       {tab === 'employees' && isAdmin && <Employees />}
       {tab === 'tips' && isAdmin && <Tips />}
+      {tab === 'closures' && isAdmin && <Closures />}
     </div>
   )
 }

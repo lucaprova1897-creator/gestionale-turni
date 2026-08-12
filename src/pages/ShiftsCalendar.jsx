@@ -21,10 +21,16 @@ function isToday(date) {
 }
 
 const STATUS_LABELS = {
+  riposo: 'Riposo',
   ferie: 'Ferie',
   permesso: 'Permesso',
   malattia: 'Malattia',
   cancelled: 'Annullato',
+}
+
+const HALF_DAY_LABELS = {
+  morning: ' (mattina)',
+  afternoon: ' (pom./sera)',
 }
 
 export default function ShiftsCalendar() {
@@ -95,7 +101,8 @@ export default function ShiftsCalendar() {
 
   function formatBadge(s) {
     if (s.status !== 'scheduled') {
-      return { text: STATUS_LABELS[s.status] || s.status, className: `status-${s.status}` }
+      const half = s.half_day && s.half_day !== 'full' ? HALF_DAY_LABELS[s.half_day] || '' : ''
+      return { text: `${STATUS_LABELS[s.status] || s.status}${half}`, className: `status-${s.status}` }
     }
     const start = s.start_time?.slice(0, 5)
     const end = s.end_time ? s.end_time.slice(0, 5) : '…'

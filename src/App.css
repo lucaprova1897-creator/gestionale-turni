@@ -446,3 +446,55 @@ th.today-col, td.today-col {
 .modal-actions .danger { background: #fdecec; color: #c0392b; margin-right: auto; }
 
 .modal .hint { margin-top: 1rem; margin-bottom: 0; font-size: 0.76rem; }
+
+.status-riposo { background: #e3f6e8; color: #157347; }
+
+.hours-summary {
+  display: flex;
+  gap: 0.75rem;
+  background: #f6f7fb;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.hours-summary > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hours-summary span {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.hours-summary strong {
+  font-size: 0.95rem;
+}
+
+.period-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.period-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  flex-wrap: wrap;
+}
+
+.period-row input, .period-row select {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}

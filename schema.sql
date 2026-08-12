@@ -214,3 +214,88 @@ create policy "tip_allocations_write" on tip_allocations
 --   La distribuzione ai singoli dipendenti si calcola in app dividendo l'importo del reparto
 --   per la somma delle quote (1 / tip_share_divisor) dei dipendenti attivi in quel reparto
 --   nel periodo, cos\u00ec chi ha un divisore (es. 1.5, 2 per part-time) riceve una quota ridotta.
+
+-- ============================================================
+-- ESTENSIONE 2: riposi come stato, mezza giornata, certificato malattia,
+-- ferie per periodo, policy riposi settimanali, chiusure struttura
+-- ============================================================
+
+-- Aggiunge lo stato 'riposo' e supporto mezza giornata + certificato malattia
+alter table shifts drop constraint if exists shifts_status_check;
+alter table shifts add constraint shifts_status_check
+  check (status in ('scheduled', 'ferie', 'riposo', 'permesso', 'malattia', 'cancelled'));
+
+alter table shifts add column if not exists half_day text default 'full'
+  check (half_day in ('full', 'morning', 'afternoon'));
+alter table shifts add column if not exists certificate_provided boolean;
+
+-- ------------------------------------------------------------
+-- Ferie spettanti per dipendente, per periodo (stagione/anno) a scelta libera
+-- ------------------------------------------------------------
+create table if not exists employee_leave_allowances (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references organizations(id) on delete cascade,
+  employee_id uuid not null references employees(id) on delete cascade,
+  period_name text not null,        -- es. "Inverno 2026", "Anno 2026"
+  start_date date not null,
+  end_date date not null,
+  allowance_days numeric not null default 0,  -- giorni di ferie spettanti in questo periodo
+  created_at timestamptz default now()
+);
+
+-- ------------------------------------------------------------
+-- Policy riposi settimanali per periodo (validi per tutta l'organizzazione)
+-- ------------------------------------------------------------
+create table if not exists rest_day_policies (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references organizations(id) on delete cascade,
+  name text not null,               -- es. "Alta stagione", "Bassa stagione"
+  start_date date not null,
+  end_date date not null,
+  weekly_rest_days numeric not null default 1,  -- es. 1, 1.5, 2
+  created_at timestamptz default now()
+);
+
+-- ------------------------------------------------------------
+-- Periodi di chiusura struttura
+-- ------------------------------------------------------------
+create table if not exists closure_periods (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references organizations(id) on delete cascade,
+  name text not null,
+  start_date date not null,
+  end_date date not null,
+  created_at timestamptz default now()
+);
+
+alter table employee_leave_allowances enable row level security;
+alter table rest_day_policies enable row level security;
+alter table closure_periods enable row level security;
+
+drop policy if exists "leave_allowances_select" on employee_leave_allowances;
+create policy "leave_allowances_select" on employee_leave_allowances
+  for select using (organization_id = current_user_org());
+drop policy if exists "leave_allowances_write" on employee_leave_allowances;
+create policy "leave_allowances_write" on employee_leave_allowances
+  for all using (organization_id = current_user_org() and current_user_role() in ('owner','admin'));
+
+drop policy if exists "rest_policies_select" on rest_day_policies;
+create policy "rest_policies_select" on rest_day_policies
+  for select using (organization_id = current_user_org());
+drop policy if exists "rest_policies_write" on rest_day_policies;
+create policy "rest_policies_write" on rest_day_policies
+  for all using (organization_id = current_user_org() and current_user_role() in ('owner','admin'));
+
+drop policy if exists "closure_periods_select" on closure_periods;
+create policy "closure_periods_select" on closure_periods
+  for select using (organization_id = current_user_org());
+drop policy if exists "closure_periods_write" on closure_periods;
+create policy "closure_periods_write" on closure_periods
+  for all using (organization_id = current_user_org() and current_user_role() in ('owner','admin'));
+
+-- NOTE:
+-- - Se una data non rientra in nessuna rest_day_policy, l'app assume di default
+--   1 riposo/settimana spettante (standard). Puoi coprire tutto l'anno con policy
+--   esplicite se vuoi un controllo totale.
+-- - Il saldo ferie ora si calcola sommando gli allowance_days di tutti i periodi
+--   configurati (invece della vecchia formula mensile fissa).
