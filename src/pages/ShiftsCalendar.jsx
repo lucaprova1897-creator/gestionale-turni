@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import ShiftModal from './ShiftModal'
 
 // Ritorna le date (lun-dom) della settimana contenente `date`
 function getWeekDates(date) {
@@ -22,6 +23,7 @@ export default function ShiftsCalendar() {
   const [departments, setDepartments] = useState([])
   const [shifts, setShifts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [modalState, setModalState] = useState(null) // { employee, date, existingShift }
 
   const weekDates = getWeekDates(weekStart)
   const orgId = profile?.organization_id
@@ -57,6 +59,32 @@ export default function ShiftsCalendar() {
     const d = new Date(weekStart)
     d.setDate(d.getDate() + delta * 7)
     setWeekStart(d)
+  }
+
+  function openNewShift(employee, date) {
+    setModalState({ employee, date, existingShift: null })
+  }
+
+  function openEditShift(employee, date, shift) {
+    setModalState({ employee, date, existingShift: shift })
+  }
+
+  function closeModal() {
+    setModalState(null)
+  }
+
+  function handleSaved() {
+    setModalState(null)
+    loadData()
+  }
+
+  function formatBadge(s) {
+    if (s.status !== 'scheduled') {
+      return { text: STATUS_LABELS[s.status] || s.status, className: `status-${s.status}` }
+    }
+    const start = s.start_time?.slice(0, 5)
+    const end = s.end_time ? s.end_time.slice(0, 5) : '…'
+    return { text: `${start}–${end}`, className: 'status-scheduled' }
   }
 
   const visibleEmployees = isAdmin
@@ -99,15 +127,25 @@ export default function ShiftsCalendar() {
                   const dayShifts = shiftsFor(emp.id, date)
                   return (
                     <td key={date.toISOString()} className="shift-cell">
-                      {dayShifts.map((s) => (
-                        <div key={s.id} className={`shift-badge status-${s.status}`}>
-                          {s.status === 'scheduled'
-                            ? `${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)}`
-                            : s.status}
-                        </div>
-                      ))}
-                      {isAdmin && dayShifts.length === 0 && (
-                        <button className="add-shift-btn" title="Aggiungi turno">
+                      {dayShifts.map((s) => {
+                        const badge = formatBadge(s)
+                        return (
+                          <div
+                            key={s.id}
+                            className={`shift-badge ${badge.className}`}
+                            onClick={() => isAdmin && openEditShift(emp, date, s)}
+                            style={{ cursor: isAdmin ? 'pointer' : 'default' }}
+                          >
+                            {badge.text}
+                          </div>
+                        )
+                      })}
+                      {isAdmin && (
+                        <button
+                          className="add-shift-btn"
+                          title={dayShifts.length === 0 ? 'Aggiungi turno' : 'Aggiungi altro turno (spezzato)'}
+                          onClick={() => openNewShift(emp, date)}
+                        >
                           +
                         </button>
                       )}
@@ -119,6 +157,25 @@ export default function ShiftsCalendar() {
           </tbody>
         </table>
       )}
+
+      {modalState && (
+        <ShiftModal
+          employee={modalState.employee}
+          date={modalState.date}
+          existingShift={modalState.existingShift}
+          orgId={orgId}
+          profileId={profile?.id}
+          onClose={closeModal}
+          onSaved={handleSaved}
+        />
+      )}
     </div>
   )
+}
+
+const STATUS_LABELS = {
+  ferie: 'Ferie',
+  permesso: 'Permesso',
+  malattia: 'Malattia',
+  cancelled: 'Annullato',
 }

@@ -81,7 +81,7 @@ create table shifts (
   shift_template_id uuid references shift_templates(id) on delete set null, -- null se orario custom
   date date not null,
   start_time time not null,
-  end_time time not null,
+  end_time time,
   status text not null default 'scheduled'
     check (status in ('scheduled', 'ferie', 'permesso', 'malattia', 'cancelled')),
   notes text,
