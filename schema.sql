@@ -157,3 +157,60 @@ create policy "shifts_write" on shifts
 -- 3. Schema pensato per essere riusabile: employees/departments hanno
 --    struttura generica, facilmente mappabile in futuro su altri gestionali
 --    (es. gestionale hotel) senza duplicare l'anagrafica.
+
+-- ============================================================
+-- ESTENSIONE: FERIE/RIPOSI e MANCE
+-- ============================================================
+
+-- Dati aggiuntivi sul dipendente per calcolo ferie e mance
+alter table employees add column if not exists start_date date;
+alter table employees add column if not exists monthly_rest_allowance numeric default 4;
+alter table employees add column if not exists tip_share_divisor numeric default 1;
+
+-- Rende facoltativo l'orario di fine turno (turni "solo inizio")
+alter table shifts alter column end_time drop not null;
+
+-- ------------------------------------------------------------
+-- MANCE: periodi (es. "Inverno 2026") con importo raccolto per reparto
+-- ------------------------------------------------------------
+create table tip_periods (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references organizations(id) on delete cascade,
+  name text not null,
+  start_date date,
+  end_date date,
+  created_at timestamptz default now()
+);
+
+create table tip_allocations (
+  id uuid primary key default gen_random_uuid(),
+  tip_period_id uuid not null references tip_periods(id) on delete cascade,
+  department_id uuid references departments(id) on delete set null,
+  amount numeric not null default 0
+);
+
+alter table tip_periods enable row level security;
+alter table tip_allocations enable row level security;
+
+create policy "tip_periods_select" on tip_periods
+  for select using (organization_id = current_user_org());
+create policy "tip_periods_write" on tip_periods
+  for all using (organization_id = current_user_org() and current_user_role() in ('owner','admin'));
+
+create policy "tip_allocations_select" on tip_allocations
+  for select using (
+    tip_period_id in (select id from tip_periods where organization_id = current_user_org())
+  );
+create policy "tip_allocations_write" on tip_allocations
+  for all using (
+    tip_period_id in (select id from tip_periods where organization_id = current_user_org())
+    and current_user_role() in ('owner','admin')
+  );
+
+-- NOTE:
+-- - Saldo ferie/riposi: calcolato in app come (mesi trascorsi da start_date * monthly_rest_allowance)
+--   meno i turni con status 'ferie' registrati in shifts. Nessuna tabella aggiuntiva necessaria.
+-- - Mance: per ogni tip_period si inserisce l'importo raccolto per reparto (tip_allocations).
+--   La distribuzione ai singoli dipendenti si calcola in app dividendo l'importo del reparto
+--   per la somma delle quote (1 / tip_share_divisor) dei dipendenti attivi in quel reparto
+--   nel periodo, cos\u00ec chi ha un divisore (es. 1.5, 2 per part-time) riceve una quota ridotta.

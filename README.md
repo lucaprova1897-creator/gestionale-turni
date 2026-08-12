@@ -48,15 +48,19 @@ i dati della propria struttura.
 
 ## Stato attuale del progetto
 
-Scheletro funzionante:
 - ✅ Login (Supabase Auth)
-- ✅ Vista calendario settimanale turni (per reparto/dipendente)
+- ✅ Vista calendario settimanale turni, raggruppata per reparto, design moderno
+- ✅ Editor turni: orario di inizio (obbligatorio) e fine (facoltativo, per turni "aperti"),
+  turni multipli nello stesso giorno per gestire gli spezzati, stati Ferie/Permesso/Malattia
 - ✅ Visibilità turni: admin vede tutti, dipendente vede solo i propri
-- ⬜ Editor turni (creazione/modifica dal calendario) — da completare
-- ⬜ Gestione anagrafica dipendenti (CRUD admin)
-- ⬜ Configurazione reparti e fasce orarie (CRUD admin)
-- ⬜ Gestione ferie/permessi/malattia con richiesta dal dipendente
-- ⬜ Wizard di onboarding per nuove strutture
+- ✅ Gestione anagrafica dipendenti (CRUD admin)
+- ✅ Configurazione reparti (CRUD admin)
+- ✅ Ferie e riposi: saldo calcolato automaticamente (mesi trascorsi dalla data di inizio ×
+  riposi/mese spettanti, meno le ferie già usate registrate nel calendario)
+- ✅ Mance: periodi con importo raccolto per reparto, distribuzione automatica tra i
+  dipendenti in base a una quota (divisibile per part-time/ore ridotte)
+- ⬜ Configurazione fasce orarie predefinite (shift_templates) — tabella pronta, UI da fare
+- ⬜ Wizard di onboarding per nuove strutture (per ora si fa manualmente da Supabase)
 
 ## Riuso futuro / collegamento ad altri gestionali
 
