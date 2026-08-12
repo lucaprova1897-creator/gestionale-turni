@@ -1,0 +1,99 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f6f8;
+  color: #1f2430;
+}
+
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.login-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 320px;
+}
+
+.login-form input {
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.login-form button {
+  padding: 0.6rem;
+  border: none;
+  border-radius: 6px;
+  background: #2d6cdf;
+  color: white;
+  cursor: pointer;
+}
+
+.error { color: #d64545; font-size: 0.85rem; }
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+}
+
+.calendar-grid {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.calendar-grid th, .calendar-grid td {
+  border: 1px solid #eee;
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  min-width: 100px;
+}
+
+.shift-cell { position: relative; height: 60px; }
+
+.shift-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: #dbe9ff;
+  color: #1a3d7c;
+  margin-bottom: 2px;
+}
+
+.shift-badge.status-ferie { background: #ffe9c2; color: #7a4b00; }
+.shift-badge.status-permesso { background: #e3d6ff; color: #4a1a8c; }
+.shift-badge.status-malattia { background: #ffd6d6; color: #8c1a1a; }
+
+.add-shift-btn {
+  background: transparent;
+  border: 1px dashed #bbb;
+  border-radius: 4px;
+  color: #999;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
